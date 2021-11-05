@@ -43,5 +43,9 @@ public class PlayerScript : MonoBehaviour
             rb.MovePosition(new Vector3(-14.5f, transform.position.y, 0));
         }
 
+
+        // stop all forces on player
+        rb.velocity = new Vector3(0, 0, 0);
+
     }
 }

@@ -10,13 +10,16 @@ public class BallScript : MonoBehaviour
     [SerializeField] private float maxSpeed = 20;                       // the max speed the ball can go
     [SerializeField] private float startSpeed = 5;                      // the speed the ball starts at when shot 
     [SerializeField][Range(1, 2)] private float speedModifier = 1.05f;  // modifer used on ball speed on collisions
-
+    [SerializeField] private GameObject trailObject;                    //  trail particle object 
+    [SerializeField] private GameObject sparkParticle;                    //  Spark Particle Prefab
 
     private float xSpeed = 0;           // current x speed of the ball
     private float ySpeed = 0;           // current y speed of the ball
     private bool ballActive = false;    //  bool for if the game is active
     private GameObject paddleObject;    // player object
-    private GameObject GameManager;     //  game manager object 
+    private GameObject gameManager;     //  game manager object 
+    private GameObject audioManager;     //  audio manager object 
+  
     private Rigidbody rb;               // rigid body attached to ball
 
     // Start is called before the first frame update
@@ -29,9 +32,13 @@ public class BallScript : MonoBehaviour
         {
             paddleObject = GameObject.Find("Player");
         }
-        if (GameManager == null)
+        if (gameManager == null)
         {
-            GameManager = GameObject.Find("GameManager");
+            gameManager = GameObject.Find("GameManager");
+        }
+        if (audioManager == null)
+        {
+            audioManager = GameObject.Find("AudioManager");
         }
         if (rb == null)
         {
@@ -47,6 +54,16 @@ public class BallScript : MonoBehaviour
         {
             // Add the x speed and y speed to the players current position 
             rb.MovePosition(new Vector3(transform.position.x + xSpeed * Time.deltaTime, transform.position.y + ySpeed * Time.deltaTime, 0));
+
+            if(Mathf.Abs(ySpeed) >= maxSpeed)
+            {
+                trailObject.SetActive(true);
+            }
+            else
+            {
+                trailObject.SetActive(false);
+            }
+               
         }
         else
         {
@@ -102,11 +119,10 @@ public class BallScript : MonoBehaviour
 
             case "Brick":
                 {
-                    // disable brick that is hit 
-                    collision.gameObject.SetActive(false);
-
+                    
+                    Destroy(Instantiate(sparkParticle, collision.contacts[0].point, Quaternion.Euler(0,180,0)), 0.1f);
                     // Add score 
-                    GameManager.GetComponent<GameManagerScript>().AddScore(100);
+                    gameManager.GetComponent<GameManagerScript>().AddScore(100);
 
                     //different check needed for top and bottom otherwise if you hit 2 bricks at once it * -1 twice and it doesnt flip             
                     // Bounce off bottom of brick
@@ -127,6 +143,18 @@ public class BallScript : MonoBehaviour
                         xSpeed *= -1;
                     }
 
+                    // play audio for breaking brick with saftey check
+                   
+                    if(audioManager.transform.GetChild(0).GetComponent<AudioSource>() != null)
+                    {
+                        print("playing pop" + audioManager.transform.GetChild(0).GetComponent<AudioSource>().name);
+                        audioManager.transform.GetChild(0).GetComponent<AudioSource>().Play();
+                    }
+                    
+
+                    // disable brick that is hit 
+                    collision.gameObject.SetActive(false);
+
                     break;
                 }
 
@@ -138,6 +166,13 @@ public class BallScript : MonoBehaviour
                     // This makes the ball bounce at a shaper angle at the edges of the paddle
                     xSpeed = transform.position.x - collision.gameObject.transform.position.x;
                     xSpeed *= Mathf.Abs((ySpeed / 3.0f) );
+
+                    // play audio for hitting paddle with saftey check
+                    if(collision.gameObject.GetComponent<AudioSource>() != null)
+                    {
+                        collision.gameObject.GetComponent<AudioSource>().Play();
+                    }
+                  
                     break;
                     
                 }
