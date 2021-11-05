@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 5.0f;
-    [SerializeField] Rigidbody rb;
+    [SerializeField] private float moveSpeed = 5.0f;    // Speed the player moves at
+    [SerializeField] private Rigidbody rb;              // Rigid Body attached to the player
 
     // Start is called before the first frame update
     void Start()
@@ -21,17 +21,18 @@ public class PlayerScript : MonoBehaviour
     void FixedUpdate()
     {
         
-
+        // Move left if A is pushed
         if(Input.GetKey(KeyCode.A) )
         { 
             rb.MovePosition(new Vector3(transform.position.x - (moveSpeed * Time.deltaTime), transform.position.y, 0));
         }
-
+        // Move Right if D is pushed
         if (Input.GetKey(KeyCode.D) )
         {          
             rb.MovePosition(new Vector3(transform.position.x + (moveSpeed * Time.deltaTime), transform.position.y, 0));
         }
 
+        //lock player position inside screen boundary
         if(transform.position.x > 14.5f)
         {
             

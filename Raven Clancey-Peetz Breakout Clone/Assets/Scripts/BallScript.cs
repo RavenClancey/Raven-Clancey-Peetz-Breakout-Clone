@@ -4,25 +4,35 @@ using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-    [SerializeField] float maxSpeed = 20;
-    [SerializeField] float startSpeed = 5;
-    [SerializeField] float xSpeed = 0;
-    [SerializeField] float ySpeed = 0;
-    [SerializeField][Range(1, 2)] float speedModifier = 1.05f;
 
-    private bool ballActive = false;
-    private GameObject paddleObject;
+    // Private Variables
 
-    [SerializeField] Rigidbody rb;
+    [SerializeField] private float maxSpeed = 20;                       // the max speed the ball can go
+    [SerializeField] private float startSpeed = 5;                      // the speed the ball starts at when shot 
+    [SerializeField][Range(1, 2)] private float speedModifier = 1.05f;  // modifer used on ball speed on collisions
+
+
+    private float xSpeed = 0;           // current x speed of the ball
+    private float ySpeed = 0;           // current y speed of the ball
+    private bool ballActive = false;    //  bool for if the game is active
+    private GameObject paddleObject;    // player object
+    private GameObject GameManager;     //  game manager object 
+    private Rigidbody rb;               // rigid body attached to ball
+
     // Start is called before the first frame update
     void Start()
     {
+
+        // fill varibles if null 
      
         if(paddleObject == null)
         {
             paddleObject = GameObject.Find("Player");
         }
-
+        if (GameManager == null)
+        {
+            GameManager = GameObject.Find("GameManager");
+        }
         if (rb == null)
         {
             rb = GetComponent<Rigidbody>();
@@ -40,8 +50,10 @@ public class BallScript : MonoBehaviour
         }
         else
         {
+            // keep ball above player paddle
             rb.MovePosition(new Vector3(paddleObject.transform.position.x, paddleObject.transform.position.y + 1.0f, 0));
 
+            //if space is hit, shoot ball with speed of start speed between -45 and 45 degrees and activate ballActive bool
             if(Input.GetKeyDown(KeyCode.Space))
             {
                 ySpeed = startSpeed;
@@ -56,7 +68,7 @@ public class BallScript : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        
+        //if Yspeed is less than max speed increase it on every collision
         if (Mathf.Abs(ySpeed) < maxSpeed )
         {
            
@@ -69,18 +81,21 @@ public class BallScript : MonoBehaviour
         {
             case "Wall":
                 {
+                    // flip xspeed if wall is hit
                     xSpeed *= -1;
                     break;
                 }
 
             case "Roof":
                 {
+                    // flip yspeed if roof it hit
                     ySpeed *= -1;
                     break;
                 }
 
             case "DeadZone":
                 {
+                    //sets ball back to player paddle
                     ballActive = false;
                     break;
                 }
@@ -90,9 +105,10 @@ public class BallScript : MonoBehaviour
                     // disable brick that is hit 
                     collision.gameObject.SetActive(false);
 
-                    //different check needed for top and bottom otherwise if you hit 2 bricks at once it * -1 twice and it doesnt flip
+                    // Add score 
+                    GameManager.GetComponent<GameManagerScript>().AddScore(100);
 
-                    print(collision.contacts[0].normal);
+                    //different check needed for top and bottom otherwise if you hit 2 bricks at once it * -1 twice and it doesnt flip             
                     // Bounce off bottom of brick
                     if(collision.contacts[0].normal.y < 0 )
                     {
@@ -127,7 +143,7 @@ public class BallScript : MonoBehaviour
                 }
             default:
                 {
-
+                    //if collide with something unexpected print to console
                     print("UNEXPECTED HIT WITH OBJECT " + collision.gameObject.name + " AT POSITION (" + collision.transform.position + ")");
                     break;
                 }

@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Brick
   - Paddle
+  - Wall
+  - Roof
+  - DeadZone
   layers:
   - Default
   - TransparentFX
