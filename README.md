@@ -6,7 +6,7 @@ Controls:
           D - Right
           Space - Launch Ball
          
-Multiplayer - Have one client click the host and join button, and a second click join
+Multiplayer - Have one client click the host button, and a second click Client
 
 The sync is not as good as I'd like, but with my limited expericene with networked gameplay I think evrything fucntions to a useable standard. 
 
